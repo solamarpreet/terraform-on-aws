@@ -1,3 +1,3 @@
 output "public_ip" {
-  value = aws_instance.test_instance.public_ip
+  value = aws_alb.test_alb.dns_name
 }

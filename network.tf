@@ -30,31 +30,3 @@ resource "aws_route_table_association" "test_rt_a_1" {
   subnet_id      = aws_subnet.test_subnet.id
   route_table_id = aws_route_table.test_route_table.id
 }
-
-resource "aws_security_group" "test_sg" {
-  vpc_id = aws_vpc.test_vpc.id
-}
-
-resource "aws_vpc_security_group_ingress_rule" "test_http" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  to_port           = 80
-  ip_protocol       = "tcp"
-}
-
-resource "aws_vpc_security_group_ingress_rule" "test_ssh" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  to_port           = 22
-  ip_protocol       = "tcp"
-}
-
-resource "aws_vpc_security_group_egress_rule" "test_all_traffic" {
-  security_group_id = aws_security_group.test_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = -1
-  to_port           = -1
-  ip_protocol       = -1
-}
