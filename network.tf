@@ -16,6 +16,14 @@ resource "aws_internet_gateway" "test_internet_gw" {
   vpc_id = aws_vpc.test_vpc.id
 }
 
+resource "aws_route_table" "test_route_table" {
+  vpc_id = aws_vpc.test_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.test_internet_gw.id
+  }
+}
+
 resource "aws_security_group" "test_sg" {
   vpc_id = aws_vpc.test_vpc.id
 }
@@ -34,4 +42,12 @@ resource "aws_vpc_security_group_ingress_rule" "test_ssh" {
   from_port = 22
   to_port = 22
   ip_protocol = "tcp"
+}
+
+resource "aws_vpc_security_group_egress_rule" "test_all_traffic" {
+  security_group_id = aws_security_group.test_sg.id
+  cidr_ipv4 = "0.0.0.0/0"
+  from_port = -1
+  to_port = -1
+  ip_protocol = -1
 }
