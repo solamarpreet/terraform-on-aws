@@ -7,3 +7,7 @@ data "aws_ami" "ubuntu_ami_id" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 }
+
+data "aws_availability_zones" "available_azs" {
+  state = "available"
+}

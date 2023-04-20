@@ -8,7 +8,7 @@ resource "aws_security_group" "test_sg" {
 
 resource "aws_vpc_security_group_ingress_rule" "test_http" {
   security_group_id            = aws_security_group.test_sg.id
-  referenced_security_group_id = aws_security_group.test_sg_lb.id
+  cidr_ipv4 = "0.0.0.0/0"
   from_port                    = 80
   to_port                      = 80
   ip_protocol                  = "tcp"

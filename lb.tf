@@ -2,26 +2,27 @@ resource "aws_launch_template" "test_launch_template" {
   image_id               = data.aws_ami.ubuntu_ami_id.id
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.test_ssh_key.id
-  vpc_security_group_ids = [aws_security_group.test_sg.id]
-  user_data              = <<-EOF
-#!/bin/bash
-apt update && apt -y dist-upgrade
-apt install -y nginx
-echo "working" > /tmp/userdatacheck.txt
-EOF
+  user_data              = base64encode(file("${path.module}/script.sh"))
+  network_interfaces {
+    associate_public_ip_address = true
+    delete_on_termination = true
+    security_groups = [ aws_security_group.test_sg.id ]
+  }
 }
 
 resource "aws_autoscaling_group" "test_asg" {
   launch_template {
     id = aws_launch_template.test_launch_template.id
   }
+  health_check_type = "ELB"
+  target_group_arns = [ aws_lb_target_group.test_target_grp.arn ]
   min_size            = 1
   max_size            = 1
-  vpc_zone_identifier = [aws_subnet.test_subnet.id]
+  vpc_zone_identifier = [aws_subnet.test_subnet_1.id, aws_subnet.test_subnet_2.id]
 }
 
 resource "aws_alb" "test_alb" {
-  subnets         = [aws_subnet.test_subnet.id]
+  subnets         = [aws_subnet.test_subnet_1.id, aws_subnet.test_subnet_2.id]
   security_groups = [aws_security_group.test_sg_lb.id]
 }
 
@@ -36,16 +37,25 @@ resource "aws_alb_listener" "test_alb_listener" {
   }
 }
 
+
 resource "aws_lb_target_group" "test_target_grp" {
-  target_type = "alb"
   port        = 80
-  protocol    = "TCP"
+  protocol    = "HTTP"
   vpc_id      = aws_vpc.test_vpc.id
 }
 
-resource "aws_autoscaling_attachment" "test_asg_attachment" {
-  autoscaling_group_name = aws_autoscaling_group.test_asg.id
-  elb                    = aws_alb.test_alb.id
+resource "aws_lb_listener_rule" "test_listener_rule" {
+  listener_arn = aws_alb_listener.test_alb_listener.arn
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.test_target_grp.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
 }
 
 resource "aws_security_group" "test_sg_lb" {
