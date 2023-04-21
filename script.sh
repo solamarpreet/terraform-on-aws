@@ -1,3 +1,4 @@
 #!/bin/bash
-apt update && apt install -y nginx
+apt update
+apt install -y nginx
 echo "working" > /tmp/userdatacheck.txt

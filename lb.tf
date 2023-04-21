@@ -1,7 +1,6 @@
 resource "aws_launch_template" "test_launch_template" {
   image_id      = data.aws_ami.ubuntu_ami_id.id
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.test_ssh_key.id
   user_data     = base64encode(file("${path.module}/script.sh"))
   network_interfaces {
     associate_public_ip_address = true
@@ -18,11 +17,11 @@ resource "aws_autoscaling_group" "test_asg" {
   target_group_arns   = [aws_lb_target_group.test_target_grp.arn]
   min_size            = 2
   max_size            = 2
-  vpc_zone_identifier = [aws_subnet.test_subnet_1.id, aws_subnet.test_subnet_2.id]
+  vpc_zone_identifier = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
 }
 
 resource "aws_alb" "test_alb" {
-  subnets         = [aws_subnet.test_subnet_1.id, aws_subnet.test_subnet_2.id]
+  subnets         = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
   security_groups = [aws_security_group.test_sg_lb.id]
 }
 
@@ -42,6 +41,13 @@ resource "aws_lb_target_group" "test_target_grp" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.test_vpc.id
+  health_check {
+    path                = "/"
+    port                = 80
+    timeout             = 10
+    interval            = 15
+    unhealthy_threshold = 10
+  }
 }
 
 resource "aws_lb_listener_rule" "test_listener_rule" {
@@ -53,7 +59,7 @@ resource "aws_lb_listener_rule" "test_listener_rule" {
 
   condition {
     path_pattern {
-      values = ["*"]
+      values = ["/"]
     }
   }
 }
@@ -68,4 +74,12 @@ resource "aws_vpc_security_group_ingress_rule" "test_http_lb" {
   from_port         = 80
   to_port           = 80
   ip_protocol       = "tcp"
+}
+
+resource "aws_vpc_security_group_egress_rule" "test_lb_all" {
+  security_group_id = aws_security_group.test_sg_lb.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = -1
+  to_port           = -1
+  ip_protocol       = -1
 }
