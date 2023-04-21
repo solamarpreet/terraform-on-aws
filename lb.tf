@@ -1,12 +1,12 @@
 resource "aws_launch_template" "test_launch_template" {
-  image_id               = data.aws_ami.ubuntu_ami_id.id
-  instance_type          = "t2.micro"
-  key_name               = aws_key_pair.test_ssh_key.id
-  user_data              = base64encode(file("${path.module}/script.sh"))
+  image_id      = data.aws_ami.ubuntu_ami_id.id
+  instance_type = "t2.micro"
+  key_name      = aws_key_pair.test_ssh_key.id
+  user_data     = base64encode(file("${path.module}/script.sh"))
   network_interfaces {
     associate_public_ip_address = true
-    delete_on_termination = true
-    security_groups = [ aws_security_group.test_sg.id ]
+    delete_on_termination       = true
+    security_groups             = [aws_security_group.test_sg.id]
   }
 }
 
@@ -14,10 +14,10 @@ resource "aws_autoscaling_group" "test_asg" {
   launch_template {
     id = aws_launch_template.test_launch_template.id
   }
-  health_check_type = "ELB"
-  target_group_arns = [ aws_lb_target_group.test_target_grp.arn ]
-  min_size            = 1
-  max_size            = 1
+  health_check_type   = "ELB"
+  target_group_arns   = [aws_lb_target_group.test_target_grp.arn]
+  min_size            = 2
+  max_size            = 2
   vpc_zone_identifier = [aws_subnet.test_subnet_1.id, aws_subnet.test_subnet_2.id]
 }
 
@@ -39,9 +39,9 @@ resource "aws_alb_listener" "test_alb_listener" {
 
 
 resource "aws_lb_target_group" "test_target_grp" {
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.test_vpc.id
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.test_vpc.id
 }
 
 resource "aws_lb_listener_rule" "test_listener_rule" {

@@ -1,5 +1,5 @@
 resource "aws_vpc" "test_vpc" {
-  cidr_block           = "10.0.0.0/20"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 
   tags = {
@@ -8,14 +8,14 @@ resource "aws_vpc" "test_vpc" {
 }
 
 resource "aws_subnet" "test_subnet_1" {
-  vpc_id     = aws_vpc.test_vpc.id
-  cidr_block = "10.0.0.0/24"
+  vpc_id            = aws_vpc.test_vpc.id
+  cidr_block        = "10.0.0.0/24"
   availability_zone = data.aws_availability_zones.available_azs.names[0]
 }
 
 resource "aws_subnet" "test_subnet_2" {
-  vpc_id     = aws_vpc.test_vpc.id
-  cidr_block = "10.0.1.0/24"
+  vpc_id            = aws_vpc.test_vpc.id
+  cidr_block        = "10.0.1.0/24"
   availability_zone = data.aws_availability_zones.available_azs.names[1]
 }
 
