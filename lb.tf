@@ -12,6 +12,7 @@ resource "aws_launch_template" "test_launch_template" {
 resource "aws_autoscaling_group" "test_asg" {
   launch_template {
     id = aws_launch_template.test_launch_template.id
+    version = "$Latest"
   }
   health_check_type   = "ELB"
   target_group_arns   = [aws_lb_target_group.test_target_grp.arn]
@@ -41,13 +42,6 @@ resource "aws_lb_target_group" "test_target_grp" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.test_vpc.id
-  health_check {
-    path                = "/"
-    port                = 80
-    timeout             = 10
-    interval            = 15
-    unhealthy_threshold = 10
-  }
 }
 
 resource "aws_lb_listener_rule" "test_listener_rule" {
@@ -78,7 +72,7 @@ resource "aws_vpc_security_group_ingress_rule" "test_http_lb" {
 
 resource "aws_vpc_security_group_egress_rule" "test_lb_all" {
   security_group_id = aws_security_group.test_sg_lb.id
-  cidr_ipv4         = "0.0.0.0/0"
+  referenced_security_group_id = aws_security_group.test_sg.id
   from_port         = -1
   to_port           = -1
   ip_protocol       = -1
