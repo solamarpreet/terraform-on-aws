@@ -38,14 +38,16 @@ resource "aws_lb_target_group" "test_tg" {
   port = 80
   protocol = "HTTP"
   vpc_id = aws_vpc.test_vpc.id
+  target_type = "ip"
 }
+
 
 resource "aws_lb_target_group_attachment" "test_tg_attach_1" {
   target_group_arn = aws_lb_target_group.test_tg.arn
-  target_id = aws_instance.test1.id
+  target_id = aws_instance.test1.private_ip
 }
 
 resource "aws_lb_target_group_attachment" "test_tg_attach_2" {
   target_group_arn = aws_lb_target_group.test_tg.arn
-  target_id = aws_instance.test2.id
+  target_id = aws_instance.test2.private_ip
 }
