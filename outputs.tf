@@ -1,3 +1,11 @@
-output "alb_dns_name" {
-  value = aws_alb.test_alb.dns_name
+output "ip_1" {
+  value = aws_instance.test1.public_ip
+}
+
+output "ip_2" {
+  value = aws_instance.test2.public_ip
+}
+
+output "alb_ip" {
+  value = aws_lb.aws_lb.dns_name
 }
