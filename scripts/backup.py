@@ -1,10 +1,18 @@
 #!/usr/bin/python3
 
 import pathlib
+import sys
 
 def main():
-    folder_name = input("Enter name of backup folder: ")
-    p = pathlib.Path(".")
+    try:
+        folder_name = sys.argv[1]
+    except:
+        folder_name = input("Enter name of backup folder: ")
+
+    p = pathlib.Path.cwd()
+    if p.name == "scripts":
+        p = pathlib.Path(p.parent)
+        
     dst = p.joinpath(folder_name)
     dst.mkdir(mode=0o770, exist_ok=True)
 
